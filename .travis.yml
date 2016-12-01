@@ -1,0 +1,59 @@
+language: php
+
+matrix:
+    include:
+        - php: 5.3
+        - php: 5.4
+        - php: 5.5
+        - php: 5.6
+        - php: 7.0
+        - php: 7.1
+        - php: nightly
+        - php: hhvm-3.6
+          sudo: required
+          dist: trusty
+          group: edge
+        - php: hhvm-3.9
+          sudo: required
+          dist: trusty
+          group: edge
+        - php: hhvm-3.12
+          sudo: required
+          dist: trusty
+          group: edge
+        - php: hhvm-3.15
+          sudo: required
+          dist: trusty
+          group: edge
+        - php: hhvm-3.15
+          sudo: required
+          dist: trusty
+          group: edge
+          env: HHVMPHP7=1
+        - php: hhvm-nightly
+          sudo: required
+          dist: trusty
+          group: edge
+    fast_finish: true
+    allow_failures:
+        - php: nightly
+        - php: hhvm-nightly
+
+before_install:
+    - phpenv config-rm xdebug.ini || true
+    - composer config --global github-oauth.github.com $GITHUB_TOKEN
+install: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader --ignore-platform-reqs
+before_script:
+  - if [[ "$HHVMPHP7" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
+script: make travis
+
+env:
+    global:
+        - ELOQUENT_PUBLISH_VERSION=7.0
+        - secure: "T3bcv3bLPicnbGcdp+fuBCTvh77mnMS/lW1HLWYcx9ZDcknxZT3js8ZXjZkf405OLA8WTZ2EczxLQ9WlEhg5mlh+60IFV2owHGqippgerTkEZKpK4V5Io5TwCGvbs0pZ+jUqKHhPXq37LeNd8sHt11zSQgvkk7RHj6TcIY3KN0zzNi6jYzr1woeOJEHEXe2aBeUg8ehuhECLBfv8lPK1llBjWO+LkEP17jhr6ULeSJfEPlKpH99NeY6gfUW1xTiTehtmESLVMYizIk1bczcJyBgu8rqpYosUCpymGn3UaYhfLE4SbNSDJHOmQrqb2LIuVLOd2K2Un9zBkqk2KZZEMH0sIe0hKoRNtej4clfepwTGLoV5nAtbbXD/6MJzjK2jiFaiTLATGcqBbQRVQRMs07tYxfisQsPrLacNxSTPRfSvgkrUccKGJC8Sy9M9Ti6uvAQHrVaDO8hlRdkeXwZdYyT41alfgr9ACFknBXkuVXQLvPHZ+LAybvECtq6jfTG3Vnss1IIBlfQy7bDQ66CfEy1ftGj6ccd8TnO/zuPJC6ulwQpXvS0eFZFFj7jV/sVOriyrz9rNiSxPylonSjG3+hpgnqQOTqjFS73A/hUsrJuEPwEOBlx2HkslACIUrcOh+HCq6fdFNiLWxv3N+PWpTsL9YG+E+4H2JPTUJPS+73I="
+
+cache:
+    directories:
+        - $HOME/.composer
+
+sudo: false

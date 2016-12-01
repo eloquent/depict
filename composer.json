@@ -1,0 +1,38 @@
+{
+    "name": "eloquent/depict",
+    "description": "A fast, recursion-safe, and succinct replacement for var_dump/var_export/print_r.",
+    "keywords": ["dump", "export", "recursive", "print", "output"],
+    "homepage": "https://github.com/eloquent/depict",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erin Millard",
+            "email": "ezzatron@gmail.com",
+            "homepage": "http://ezzatron.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "athletic/athletic": "^0.1",
+        "errors/exceptions": "dev-master",
+        "friendsofphp/php-cs-fixer": "~1",
+        "peridot-php/leo": "^1",
+        "peridot-php/peridot": "^1",
+        "peridot-php/peridot-code-coverage-reporters": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eloquent\\Depict\\": "src"
+        },
+        "files": [
+            "src/functions.php"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "test/src"
+        ]
+    }
+}
