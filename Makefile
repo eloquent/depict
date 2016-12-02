@@ -1,10 +1,10 @@
 test: install
 	php --version
-	vendor/bin/peridot
+	vendor/bin/phpunit --no-coverage
 
 coverage: install
 	phpdbg --version
-	phpdbg -qrr vendor/bin/peridot --reporter html-code-coverage --code-coverage-path coverage
+	phpdbg -qrr vendor/bin/phpunit
 
 open-coverage:
 	open coverage/index.html
@@ -14,9 +14,7 @@ lint: install
 
 install: vendor/autoload.php
 
-travis: test
-	phpdbg -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path coverage
-	bash <(curl -s https://codecov.io/bash)
+travis: coverage
 
 .PHONY: test coverage open-coverage lint install travis
 

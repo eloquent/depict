@@ -43,9 +43,9 @@ before_install:
     - phpenv config-rm xdebug.ini || true
     - composer config --global github-oauth.github.com $GITHUB_TOKEN
 install: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader --ignore-platform-reqs
-before_script:
-  - if [[ "$HHVMPHP7" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
+before_script: if [[ "$HHVMPHP7" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
 script: make travis
+after_success: bash <(curl -s https://codecov.io/bash)
 
 env:
     global:

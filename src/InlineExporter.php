@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Depict package.
- *
- * Copyright © 2016 Erin Millard
- *
- * For the full copyright and license information, please view the LICENSE file
- * that was distributed with this source code.
- */
-
 namespace Eloquent\Depict;
 
 use Closure;
@@ -25,14 +16,22 @@ class InlineExporter implements Exporter
     /**
      * Create an inline exporter.
      *
-     * Negative depths are treated as infinite depth.
+     * Currently, 'depth' is the only supported options, which accepts an
+     * integer that determines the depth to which Depict will traverse. Negative
+     * depths are treated as infinite depth.
      *
-     * @param string $depth The depth.
+     * @param array<string,mixed> $options The options.
      *
      * @return self An inline exporter.
      */
-    public static function create($depth = -1)
+    public static function create(array $options = array())
     {
+        if (isset($options['depth'])) {
+            $depth = $options['depth'];
+        } else {
+            $depth = -1;
+        }
+
         return new self($depth);
     }
 
@@ -45,12 +44,12 @@ class InlineExporter implements Exporter
      */
     public function export(&$value)
     {
-        $final = (object) [];
-        $stack = [[&$value, $final, 0, gettype($value)]];
-        $results = [];
+        $final = (object) array();
+        $stack = array(array(&$value, $final, 0, gettype($value)));
+        $results = array();
         $seenObjects = new SplObjectStorage();
-        $seenArrays = [];
-        $arrayResults = [];
+        $seenArrays = array();
+        $arrayResults = array();
         $arrayId = 0;
 
         while (!empty($stack)) {
@@ -127,7 +126,7 @@ class InlineExporter implements Exporter
 
                     $arrayResults[$id] = $result;
 
-                    $result->children = [];
+                    $result->children = array();
                     $result->sequence = true;
                     $sequenceKey = 0;
 
@@ -143,22 +142,22 @@ class InlineExporter implements Exporter
                             }
                         }
 
-                        $keyResult = (object) [];
-                        $valueResult = (object) [];
-                        $result->children[] = [$keyResult, $valueResult];
+                        $keyResult = (object) array();
+                        $valueResult = (object) array();
+                        $result->children[] = array($keyResult, $valueResult);
 
-                        $stack[] = [
+                        $stack[] = array(
                             $key,
                             $keyResult,
                             $currentDepth + 1,
                             gettype($key),
-                        ];
-                        $stack[] = [
+                        );
+                        $stack[] = array(
                             &$childValue,
                             $valueResult,
                             $currentDepth + 1,
                             gettype($childValue),
-                        ];
+                        );
                     }
 
                     break;
@@ -205,11 +204,11 @@ class InlineExporter implements Exporter
                         $result->label =
                             basename($reflector->getFilename()) . ':' .
                             $reflector->getStartLine();
-                        $phpValues = [];
+                        $phpValues = array();
                     }
 
-                    $properties = [];
-                    $propertyCounts = [];
+                    $properties = array();
+                    $propertyCounts = array();
 
                     foreach (
                         $phpValues as $propertyName => $propertyValue
@@ -232,17 +231,17 @@ class InlineExporter implements Exporter
                                     $matches[1] . '.' . $propertyName;
                             }
 
-                            $properties[] = [
+                            $properties[] = array(
                                 $propertyName,
                                 $realName,
                                 $propertyValue,
-                            ];
+                            );
                         } else {
-                            $properties[] = [
+                            $properties[] = array(
                                 $propertyName,
                                 $propertyName,
                                 $propertyValue,
-                            ];
+                            );
                         }
 
                         if (isset($propertyCounts[$propertyName])) {
@@ -252,7 +251,7 @@ class InlineExporter implements Exporter
                         }
                     }
 
-                    $values = [];
+                    $values = array();
 
                     foreach ($properties as $property) {
                         list($shortName, $realName, $propertyValue) =
@@ -295,19 +294,19 @@ class InlineExporter implements Exporter
 
                     $seenObjects->offsetSet($value, true);
 
-                    $result->children = [];
+                    $result->children = array();
                     $result->object = true;
 
                     foreach ($values as $key => &$childValue) {
-                        $valueResult = (object) [];
-                        $result->children[] = [$key, $valueResult];
+                        $valueResult = (object) array();
+                        $result->children[] = array($key, $valueResult);
 
-                        $stack[] = [
+                        $stack[] = array(
                             &$childValue,
                             $valueResult,
                             $currentDepth + 1,
                             gettype($childValue),
-                        ];
+                        );
                     }
 
                     break;
@@ -383,7 +382,7 @@ class InlineExporter implements Exporter
     {
         $this->depth = $depth;
         $this->objectSequence = 0;
-        $this->objectIds = [];
+        $this->objectIds = array();
         $this->jsonFlags = 0;
 
         if (defined('JSON_UNESCAPED_SLASHES')) {
