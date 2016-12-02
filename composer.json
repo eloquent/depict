@@ -11,6 +11,9 @@
             "homepage": "http://ezzatron.com/"
         }
     ],
+    "platform": {
+        "php": "5.4"
+    },
     "require": {
         "php": ">=5.4"
     },
