@@ -21,6 +21,7 @@
         "athletic/athletic": "^0.1",
         "errors/exceptions": "dev-master",
         "friendsofphp/php-cs-fixer": "~1",
+        "phpdocumentor/reflection-docblock": "^2",
         "phpunit/phpunit": "^4"
     },
     "autoload": {
