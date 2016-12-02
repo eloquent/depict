@@ -14,7 +14,13 @@ lint: install
 
 install: vendor/autoload.php
 
-travis: coverage
+travis: install
+ifeq ($(TRAVIS_PHP_VERSION), $(filter $(TRAVIS_PHP_VERSION), 7.0 7.1))
+	make coverage
+else
+	phpenv config-add xdebug.ini || true
+	vendor/bin/phpunit
+endif
 
 .PHONY: test coverage open-coverage lint install travis
 
