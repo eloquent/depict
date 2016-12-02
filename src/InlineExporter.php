@@ -32,7 +32,13 @@ class InlineExporter implements Exporter
             $depth = -1;
         }
 
-        return new self($depth);
+        if (isset($options['breadth'])) {
+            $breadth = $options['breadth'];
+        } else {
+            $breadth = -1;
+        }
+
+        return new self($depth, $breadth);
     }
 
     /**
@@ -111,10 +117,9 @@ class InlineExporter implements Exporter
                     }
 
                     $result->type = '#' . $id;
+                    $count = count($value) - 1;
 
                     if ($this->depth > -1 && $currentDepth >= $this->depth) {
-                        $count = count($value) - 1;
-
                         if ($count) {
                             $result->type .= '[:' . $count . ']';
                         } else {
@@ -128,11 +133,22 @@ class InlineExporter implements Exporter
 
                     $result->children = array();
                     $result->sequence = true;
+                    $result->truncated = 0;
                     $sequenceKey = 0;
+                    $currentBreadth = 0;
 
                     foreach ($value as $key => &$childValue) {
                         if (self::ARRAY_ID_KEY === $key) {
                             continue;
+                        }
+
+                        if (
+                            $this->breadth > -1 &&
+                            ++$currentBreadth > $this->breadth
+                        ) {
+                            $result->truncated = $count - $currentBreadth + 1;
+
+                            break;
                         }
 
                         if ($result->sequence) {
@@ -281,12 +297,13 @@ class InlineExporter implements Exporter
                     }
 
                     $result->type .= '#' . $id;
+                    $count = count($values);
 
                     if ($this->depth > -1 && $currentDepth >= $this->depth) {
-                        if (empty($values)) {
-                            $result->type .= '{}';
+                        if ($count) {
+                            $result->type .= '{:' . $count . '}';
                         } else {
-                            $result->type .= '{:' . count($values) . '}';
+                            $result->type .= '{}';
                         }
 
                         break;
@@ -296,8 +313,19 @@ class InlineExporter implements Exporter
 
                     $result->children = array();
                     $result->object = true;
+                    $result->truncated = 0;
+                    $currentBreadth = 0;
 
                     foreach ($values as $key => &$childValue) {
+                        if (
+                            $this->breadth > -1 &&
+                            ++$currentBreadth > $this->breadth
+                        ) {
+                            $result->truncated = $count - $currentBreadth + 1;
+
+                            break;
+                        }
+
                         $valueResult = (object) array();
                         $result->children[] = array($key, $valueResult);
 
@@ -334,6 +362,14 @@ class InlineExporter implements Exporter
                     $isFirst = false;
                 }
 
+                if ($result->truncated > 0) {
+                    if (!$isFirst) {
+                        $result->final .= ', ';
+                    }
+
+                    $result->final .= ':' . $result->truncated;
+                }
+
                 $result->final .= '}';
             } elseif (isset($result->map)) {
                 $result->final .= '[';
@@ -349,6 +385,14 @@ class InlineExporter implements Exporter
                     $isFirst = false;
                 }
 
+                if ($result->truncated > 0) {
+                    if (!$isFirst) {
+                        $result->final .= ', ';
+                    }
+
+                    $result->final .= ':' . $result->truncated;
+                }
+
                 $result->final .= ']';
             } elseif (isset($result->sequence)) {
                 $result->final .= '[';
@@ -361,6 +405,14 @@ class InlineExporter implements Exporter
 
                     $result->final .= $pair[1]->final;
                     $isFirst = false;
+                }
+
+                if ($result->truncated > 0) {
+                    if (!$isFirst) {
+                        $result->final .= ', ';
+                    }
+
+                    $result->final .= ':' . $result->truncated;
                 }
 
                 $result->final .= ']';
@@ -378,9 +430,10 @@ class InlineExporter implements Exporter
         return $final->final;
     }
 
-    private function __construct($depth)
+    private function __construct($depth, $breadth)
     {
         $this->depth = $depth;
+        $this->breadth = $breadth;
         $this->objectSequence = 0;
         $this->objectIds = array();
         $this->jsonFlags = 0;
@@ -397,6 +450,7 @@ class InlineExporter implements Exporter
 
     private static $instance;
     private $depth;
+    private $breadth;
     private $objectSequence;
     private $objectIds;
     private $jsonFlags;

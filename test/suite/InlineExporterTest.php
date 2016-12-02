@@ -85,6 +85,48 @@ class InlineExporterTest extends PHPUnit_Framework_TestCase
         $this->assertSame('#1{}', $depth0->export($object, 0));
     }
 
+    public function testExportMaxBreadthWithMaps()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = array(1 => 1, 2 => 2, 3 => 3);
+
+        $this->assertSame('#0[:3]', $breadth0->export($value, 0));
+        $this->assertSame('#0[1: 1, :2]', $breadth1->export($value, 1));
+        $this->assertSame('#0[1: 1, 2: 2, :1]', $breadth2->export($value, 2));
+        $this->assertSame('#0[1: 1, 2: 2, 3: 3]', $this->subject->export($value));
+    }
+
+    public function testExportMaxBreadthWithSequences()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = range(1, 3);
+
+        $this->assertSame('#0[:3]', $breadth0->export($value, 0));
+        $this->assertSame('#0[1, :2]', $breadth1->export($value, 1));
+        $this->assertSame('#0[1, 2, :1]', $breadth2->export($value, 2));
+        $this->assertSame('#0[1, 2, 3]', $this->subject->export($value));
+    }
+
+    public function testExportMaxBreadthWithObjects()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = (object) array('a' => 'a', 'b' => 'b', 'c' => 'c');
+
+        $this->assertSame('#0{:3}', $breadth0->export($value, 0));
+        $this->assertSame('#0{a: "a", :2}', $breadth1->export($value, 1));
+        $this->assertSame('#0{a: "a", b: "b", :1}', $breadth2->export($value, 2));
+        $this->assertSame('#0{a: "a", b: "b", c: "c"}', $this->subject->export($value));
+    }
+
     public function testExportRecursiveObject()
     {
         $value = new TestClass();
