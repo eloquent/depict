@@ -121,7 +121,7 @@ class InlineExporter implements Exporter
 
                     if ($this->depth > -1 && $currentDepth >= $this->depth) {
                         if ($count) {
-                            $result->type .= '[:' . $count . ']';
+                            $result->type .= '[~' . $count . ']';
                         } else {
                             $result->type .= '[]';
                         }
@@ -301,7 +301,7 @@ class InlineExporter implements Exporter
 
                     if ($this->depth > -1 && $currentDepth >= $this->depth) {
                         if ($count) {
-                            $result->type .= '{:' . $count . '}';
+                            $result->type .= '{~' . $count . '}';
                         } else {
                             $result->type .= '{}';
                         }
@@ -367,7 +367,7 @@ class InlineExporter implements Exporter
                         $result->final .= ', ';
                     }
 
-                    $result->final .= ':' . $result->truncated;
+                    $result->final .= '~' . $result->truncated;
                 }
 
                 $result->final .= '}';
@@ -390,7 +390,7 @@ class InlineExporter implements Exporter
                         $result->final .= ', ';
                     }
 
-                    $result->final .= ':' . $result->truncated;
+                    $result->final .= '~' . $result->truncated;
                 }
 
                 $result->final .= ']';
@@ -412,7 +412,7 @@ class InlineExporter implements Exporter
                         $result->final .= ', ';
                     }
 
-                    $result->final .= ':' . $result->truncated;
+                    $result->final .= '~' . $result->truncated;
                 }
 
                 $result->final .= ']';
