@@ -1,6 +1,7 @@
 <?php
 
 use Eloquent\Depict\InlineExporter;
+use NamespaceA\NamespaceB\TestNamespacedClass;
 
 class InlineExporterTest extends PHPUnit_Framework_TestCase
 {
@@ -14,32 +15,33 @@ class InlineExporterTest extends PHPUnit_Framework_TestCase
     public function exportData()
     {
         return array(
-            'null'             => array(null,                                            'null'),
-            'true'             => array(true,                                            'true'),
-            'false'            => array(false,                                           'false'),
-            '0'                => array(0,                                               '0'),
-            '-0'               => array(-0,                                              '0'),
-            '1'                => array(1,                                               '1'),
-            '-1'               => array(-1,                                              '-1'),
-            '0.0'              => array(0.0,                                             '0.000000e+0'),
-            '-0.0'             => array(-0.0,                                            '0.000000e+0'),
-            '1.0'              => array(1.0,                                             '1.000000e+0'),
-            '-1.0'             => array(-1.0,                                            '-1.000000e+0'),
-            'STDIN'            => array(STDIN,                                           'resource#1'),
-            'STDOUT'           => array(STDOUT,                                          'resource#2'),
-            'a\nb'             => array("a\nb",                                          '"a\nb"'),
-            '[]'               => array(array(),                                         '#0[]'),
-            '[1]'              => array(array(1),                                        '#0[1]'),
-            '[1, 1]'           => array(array(1, 1),                                     '#0[1, 1]'),
-            '[1: 1]'           => array(array(1 => 1),                                   '#0[1: 1]'),
-            '[1: 1, 2: 2]'     => array(array(1 => 1, 2 => 2),                           '#0[1: 1, 2: 2]'),
-            '[1, [1, 1]]'      => array(array(1, array(1, 1)),                           '#0[1, #1[1, 1]]'),
-            '[[1, 1], [1, 1]]' => array(array(array(1, 1), array(1, 1)),                 '#0[#1[1, 1], #2[1, 1]]'),
-            '{a: 0}'           => array((object) array('a' => 0),                        '#0{a: 0}'),
-            '{a: 0, b: 1}'     => array((object) array('a' => 0, 'b' => 1),              '#0{a: 0, b: 1}'),
-            '{a: {a: 0}}'      => array((object) array('a' => (object) array('a' => 0)), '#0{a: #1{a: 0}}'),
-            '{a: []}'          => array((object) array('a' => array()),                  '#0{a: #0[]}'),
-            'object'           => array(new TestClass(),                                 'TestClass#0{}'),
+            'null'              => array(null,                                            'null'),
+            'true'              => array(true,                                            'true'),
+            'false'             => array(false,                                           'false'),
+            '0'                 => array(0,                                               '0'),
+            '-0'                => array(-0,                                              '0'),
+            '1'                 => array(1,                                               '1'),
+            '-1'                => array(-1,                                              '-1'),
+            '0.0'               => array(0.0,                                             '0.000000e+0'),
+            '-0.0'              => array(-0.0,                                            '0.000000e+0'),
+            '1.0'               => array(1.0,                                             '1.000000e+0'),
+            '-1.0'              => array(-1.0,                                            '-1.000000e+0'),
+            'STDIN'             => array(STDIN,                                           'resource#1'),
+            'STDOUT'            => array(STDOUT,                                          'resource#2'),
+            'a\nb'              => array("a\nb",                                          '"a\nb"'),
+            '[]'                => array(array(),                                         '#0[]'),
+            '[1]'               => array(array(1),                                        '#0[1]'),
+            '[1, 1]'            => array(array(1, 1),                                     '#0[1, 1]'),
+            '[1: 1]'            => array(array(1 => 1),                                   '#0[1: 1]'),
+            '[1: 1, 2: 2]'      => array(array(1 => 1, 2 => 2),                           '#0[1: 1, 2: 2]'),
+            '[1, [1, 1]]'       => array(array(1, array(1, 1)),                           '#0[1, #1[1, 1]]'),
+            '[[1, 1], [1, 1]]'  => array(array(array(1, 1), array(1, 1)),                 '#0[#1[1, 1], #2[1, 1]]'),
+            '{a: 0}'            => array((object) array('a' => 0),                        '#0{a: 0}'),
+            '{a: 0, b: 1}'      => array((object) array('a' => 0, 'b' => 1),              '#0{a: 0, b: 1}'),
+            '{a: {a: 0}}'       => array((object) array('a' => (object) array('a' => 0)), '#0{a: #1{a: 0}}'),
+            '{a: []}'           => array((object) array('a' => array()),                  '#0{a: #0[]}'),
+            'object'            => array(new TestClass(),                                 'TestClass#0{}'),
+            'namespaced object' => array(new TestNamespacedClass(),                       'TestNamespacedClass#0{}'),
         );
     }
 
@@ -52,79 +54,6 @@ class InlineExporterTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($expected, $this->subject->export($value));
         $this->assertSame($copy, $value);
-    }
-
-    public function testExportMaxDepthWithArrays()
-    {
-        $depth0 = InlineExporter::create(array('depth' => 0));
-        $depth1 = InlineExporter::create(array('depth' => 1));
-        $depth2 = InlineExporter::create(array('depth' => 2));
-
-        $array = array();
-        $value = array(&$array, array(&$array));
-
-        $this->assertSame('#0[~2]', $depth0->export($value, 0));
-        $this->assertSame('#0[#1[], #2[~1]]', $depth1->export($value, 1));
-        $this->assertSame('#0[#1[], #2[&1[]]]', $depth2->export($value, 2));
-        $this->assertSame('#0[#1[], #2[&1[]]]', $this->subject->export($value));
-    }
-
-    public function testExportMaxDepthWithObjects()
-    {
-        $depth0 = InlineExporter::create(array('depth' => 0));
-        $depth1 = InlineExporter::create(array('depth' => 1));
-        $depth2 = InlineExporter::create(array('depth' => 2));
-
-        $object = (object) array();
-        $value = (object) array('a' => &$object, 'b' => (object) array('a' => &$object));
-
-        $this->assertSame('#0{~2}', $depth0->export($value, 0));
-        $this->assertSame('#0{a: #1{}, b: #2{~1}}', $depth1->export($value, 1));
-        $this->assertSame('#0{a: #1{}, b: #2{a: &1{}}}', $depth2->export($value, 2));
-        $this->assertSame('#0{a: #1{}, b: #2{a: &1{}}}', $this->subject->export($value));
-        $this->assertSame('#1{}', $depth0->export($object, 0));
-    }
-
-    public function testExportMaxBreadthWithMaps()
-    {
-        $breadth0 = InlineExporter::create(array('breadth' => 0));
-        $breadth1 = InlineExporter::create(array('breadth' => 1));
-        $breadth2 = InlineExporter::create(array('breadth' => 2));
-
-        $value = array(1 => 1, 2 => 2, 3 => 3);
-
-        $this->assertSame('#0[~3]', $breadth0->export($value, 0));
-        $this->assertSame('#0[1: 1, ~2]', $breadth1->export($value, 1));
-        $this->assertSame('#0[1: 1, 2: 2, ~1]', $breadth2->export($value, 2));
-        $this->assertSame('#0[1: 1, 2: 2, 3: 3]', $this->subject->export($value));
-    }
-
-    public function testExportMaxBreadthWithSequences()
-    {
-        $breadth0 = InlineExporter::create(array('breadth' => 0));
-        $breadth1 = InlineExporter::create(array('breadth' => 1));
-        $breadth2 = InlineExporter::create(array('breadth' => 2));
-
-        $value = range(1, 3);
-
-        $this->assertSame('#0[~3]', $breadth0->export($value, 0));
-        $this->assertSame('#0[1, ~2]', $breadth1->export($value, 1));
-        $this->assertSame('#0[1, 2, ~1]', $breadth2->export($value, 2));
-        $this->assertSame('#0[1, 2, 3]', $this->subject->export($value));
-    }
-
-    public function testExportMaxBreadthWithObjects()
-    {
-        $breadth0 = InlineExporter::create(array('breadth' => 0));
-        $breadth1 = InlineExporter::create(array('breadth' => 1));
-        $breadth2 = InlineExporter::create(array('breadth' => 2));
-
-        $value = (object) array('a' => 'a', 'b' => 'b', 'c' => 'c');
-
-        $this->assertSame('#0{~3}', $breadth0->export($value, 0));
-        $this->assertSame('#0{a: "a", ~2}', $breadth1->export($value, 1));
-        $this->assertSame('#0{a: "a", b: "b", ~1}', $breadth2->export($value, 2));
-        $this->assertSame('#0{a: "a", b: "b", c: "c"}', $this->subject->export($value));
     }
 
     public function testExportRecursiveObject()
@@ -215,5 +144,87 @@ class InlineExporterTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame('Generator#0{}', $this->subject->export($generator));
+    }
+
+    public function testExportMaxDepthWithArrays()
+    {
+        $depth0 = InlineExporter::create(array('depth' => 0));
+        $depth1 = InlineExporter::create(array('depth' => 1));
+        $depth2 = InlineExporter::create(array('depth' => 2));
+
+        $array = array();
+        $value = array(&$array, array(&$array));
+
+        $this->assertSame('#0[~2]', $depth0->export($value));
+        $this->assertSame('#0[#1[], #2[~1]]', $depth1->export($value));
+        $this->assertSame('#0[#1[], #2[&1[]]]', $depth2->export($value));
+        $this->assertSame('#0[#1[], #2[&1[]]]', $this->subject->export($value));
+    }
+
+    public function testExportMaxDepthWithObjects()
+    {
+        $depth0 = InlineExporter::create(array('depth' => 0));
+        $depth1 = InlineExporter::create(array('depth' => 1));
+        $depth2 = InlineExporter::create(array('depth' => 2));
+
+        $object = (object) array();
+        $value = (object) array('a' => &$object, 'b' => (object) array('a' => &$object));
+
+        $this->assertSame('#0{~2}', $depth0->export($value));
+        $this->assertSame('#0{a: #1{}, b: #2{~1}}', $depth1->export($value));
+        $this->assertSame('#0{a: #1{}, b: #2{a: &1{}}}', $depth2->export($value));
+        $this->assertSame('#0{a: #1{}, b: #2{a: &1{}}}', $this->subject->export($value));
+        $this->assertSame('#1{}', $depth0->export($object, 0));
+    }
+
+    public function testExportMaxBreadthWithMaps()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = array(1 => 1, 2 => 2, 3 => 3);
+
+        $this->assertSame('#0[~3]', $breadth0->export($value));
+        $this->assertSame('#0[1: 1, ~2]', $breadth1->export($value));
+        $this->assertSame('#0[1: 1, 2: 2, ~1]', $breadth2->export($value));
+        $this->assertSame('#0[1: 1, 2: 2, 3: 3]', $this->subject->export($value));
+    }
+
+    public function testExportMaxBreadthWithSequences()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = range(1, 3);
+
+        $this->assertSame('#0[~3]', $breadth0->export($value));
+        $this->assertSame('#0[1, ~2]', $breadth1->export($value));
+        $this->assertSame('#0[1, 2, ~1]', $breadth2->export($value));
+        $this->assertSame('#0[1, 2, 3]', $this->subject->export($value));
+    }
+
+    public function testExportMaxBreadthWithObjects()
+    {
+        $breadth0 = InlineExporter::create(array('breadth' => 0));
+        $breadth1 = InlineExporter::create(array('breadth' => 1));
+        $breadth2 = InlineExporter::create(array('breadth' => 2));
+
+        $value = (object) array('a' => 'a', 'b' => 'b', 'c' => 'c');
+
+        $this->assertSame('#0{~3}', $breadth0->export($value));
+        $this->assertSame('#0{a: "a", ~2}', $breadth1->export($value));
+        $this->assertSame('#0{a: "a", b: "b", ~1}', $breadth2->export($value));
+        $this->assertSame('#0{a: "a", b: "b", c: "c"}', $this->subject->export($value));
+    }
+
+    public function testExportWithoutShortNames()
+    {
+        $longNames = InlineExporter::create(array('useShortNames' => false));
+        $value = new TestNamespacedClass();
+
+        $this->assertSame('TestNamespacedClass#0{}', $this->subject->export($value));
+        $this->assertSame('NamespaceA\NamespaceB\TestNamespacedClass#0{}', $longNames->export($value));
     }
 }

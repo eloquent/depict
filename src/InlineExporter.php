@@ -38,7 +38,13 @@ class InlineExporter implements Exporter
             $breadth = -1;
         }
 
-        return new self($depth, $breadth);
+        if (isset($options['useShortNames'])) {
+            $useShortNames = $options['useShortNames'];
+        } else {
+            $useShortNames = true;
+        }
+
+        return new self($depth, $breadth, $useShortNames);
     }
 
     /**
@@ -200,6 +206,9 @@ class InlineExporter implements Exporter
 
                     if ($isClosure) {
                         $result->type = 'Closure';
+                    } elseif ($this->useShortNames) {
+                        $atoms = explode('\\', get_class($value));
+                        $result->type = array_pop($atoms);
                     } else {
                         $result->type = get_class($value);
                     }
@@ -430,10 +439,11 @@ class InlineExporter implements Exporter
         return $final->final;
     }
 
-    private function __construct($depth, $breadth)
+    private function __construct($depth, $breadth, $useShortNames)
     {
         $this->depth = $depth;
         $this->breadth = $breadth;
+        $this->useShortNames = $useShortNames;
         $this->objectSequence = 0;
         $this->objectIds = array();
         $this->jsonFlags = 0;
@@ -451,6 +461,7 @@ class InlineExporter implements Exporter
     private static $instance;
     private $depth;
     private $breadth;
+    private $useShortNames;
     private $objectSequence;
     private $objectIds;
     private $jsonFlags;
