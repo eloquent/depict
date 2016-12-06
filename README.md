@@ -19,10 +19,18 @@
 [version-image]: https://img.shields.io/packagist/v/eloquent/depict.svg?style=flat-square "This project uses semantic versioning"
 [windows-build-image]: https://img.shields.io/appveyor/ci/eloquent/depict/master.svg?label=windows&style=flat-square "Current Windows build status for the master branch"
 
-## Installation and documentation
+## Installation
 
 - Available as [Composer] package [eloquent/depict].
-- Read the [documentation].
 
 [composer]: http://getcomposer.org/
 [eloquent/depict]: https://packagist.org/packages/eloquent/depict
+
+## Usage
+
+```php
+use Eloquent\Depict\InlineExporter;
+
+$exporter = InlineExporter::create();
+echo $exporter->export(['a', 'b', 'c', 1, 2, 3]); // outputs '#0["a", "b", "c", 1, 2, 3]'
+```
