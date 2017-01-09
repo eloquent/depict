@@ -213,12 +213,11 @@ the output:
 
 ```php
 $closure = function () {}; // file path is /path/to/example.php, line number is 123
-// $closure is exported as 'Closure#0{}[example.php:123]'
+// $closure is exported as 'Closure#0{}[/path/to/example.php:123]'
 ```
 
-Only the basename of the path is included, for brevity. Also note that the class
-name will always be exported as `Closure`, even for runtimes such as [HHVM] that
-use different class names for closures.
+Note that the class name will always be exported as `Closure`, even for runtimes
+such as [HHVM] that use different class names for closures.
 
 [hhvm]: http://hhvm.com/
 
