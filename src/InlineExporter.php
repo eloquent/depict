@@ -16,9 +16,23 @@ class InlineExporter implements Exporter
     /**
      * Create an inline exporter.
      *
-     * Currently, 'depth' is the only supported options, which accepts an
-     * integer that determines the depth to which Depict will traverse. Negative
-     * depths are treated as infinite depth.
+     * Accepts an array of options, including:
+     *
+     * 'depth' (defaults to -1):
+     *   An integer that determines the depth to which Depict will export before
+     *   truncating output. Negative values are treated as infinite depth.
+     *
+     * 'breadth' (defaults to -1):
+     *   An integer that determines the number of sub-values that Depict will
+     *   export before truncating output. Negative values are treated as
+     *   infinite breadth.
+     *
+     * 'useShortNames' (defaults to true):
+     *   When true, Depict will omit namespace information from exported symbol
+     *   names.
+     *
+     * 'useShortPaths' (defaults to false):
+     *   When true, Depict will export only the basename of closure paths.
      *
      * @param array<string,mixed> $options The options.
      *
@@ -44,7 +58,13 @@ class InlineExporter implements Exporter
             $useShortNames = true;
         }
 
-        return new self($depth, $breadth, $useShortNames);
+        if (isset($options['useShortPaths'])) {
+            $useShortPaths = $options['useShortPaths'];
+        } else {
+            $useShortPaths = false;
+        }
+
+        return new self($depth, $breadth, $useShortNames, $useShortPaths);
     }
 
     /**
@@ -226,9 +246,15 @@ class InlineExporter implements Exporter
                         );
                     } elseif ($isClosure) {
                         $reflector = new ReflectionFunction($value);
-                        $result->label =
-                            basename($reflector->getFilename()) . ':' .
-                            $reflector->getStartLine();
+
+                        if ($this->useShortPaths) {
+                            $result->label =
+                                basename($reflector->getFilename());
+                        } else {
+                            $result->label = $reflector->getFilename();
+                        }
+
+                        $result->label .= ':' . $reflector->getStartLine();
                         $phpValues = array();
                     }
 
@@ -439,11 +465,16 @@ class InlineExporter implements Exporter
         return $final->final;
     }
 
-    private function __construct($depth, $breadth, $useShortNames)
-    {
+    private function __construct(
+        $depth,
+        $breadth,
+        $useShortNames,
+        $useShortPaths
+    ) {
         $this->depth = $depth;
         $this->breadth = $breadth;
         $this->useShortNames = $useShortNames;
+        $this->useShortPaths = $useShortPaths;
         $this->objectSequence = 0;
         $this->objectIds = array();
         $this->jsonFlags = 0;
@@ -462,6 +493,7 @@ class InlineExporter implements Exporter
     private $depth;
     private $breadth;
     private $useShortNames;
+    private $useShortPaths;
     private $objectSequence;
     private $objectIds;
     private $jsonFlags;

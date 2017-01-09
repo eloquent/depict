@@ -98,14 +98,13 @@ class InlineExporterTest extends PHPUnit_Framework_TestCase
 
     public function testExportClosure()
     {
+        $shortPaths = InlineExporter::create(array('useShortPaths' => true));
         $line = __LINE__ + 1;
         $value = function () {
         };
 
-        $this->assertSame(
-            'Closure#0{}[' . basename(__FILE__) . ':' . $line . ']',
-            $this->subject->export($value)
-        );
+        $this->assertSame('Closure#0{}[' . __FILE__ . ':' . $line . ']', $this->subject->export($value));
+        $this->assertSame('Closure#0{}[' . basename(__FILE__) . ':' . $line . ']', $shortPaths->export($value));
     }
 
     public function testExportExceptions()
