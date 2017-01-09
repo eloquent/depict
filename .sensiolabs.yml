@@ -1,0 +1,5 @@
+rules:
+    php.method_too_long:
+        enabled: false
+    php.interface_has_no_interface_suffix:
+        enabled: false

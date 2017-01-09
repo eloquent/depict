@@ -11,18 +11,13 @@
             "homepage": "http://ezzatron.com/"
         }
     ],
-    "platform": {
-        "php": "5.3"
-    },
     "require": {
         "php": ">=5.3"
     },
     "require-dev": {
         "errors/exceptions": "^0.1",
-        "friendsofphp/php-cs-fixer": "1.11.4",
         "phpdocumentor/reflection-docblock": "^2",
-        "phpunit/phpunit": "^4",
-        "symfony/var-dumper": "^3.2"
+        "phpunit/phpunit": "^4"
     },
     "autoload": {
         "psr-4": {
@@ -36,5 +31,10 @@
         "classmap": [
             "test/src"
         ]
+    },
+    "config": {
+        "platform": {
+            "php": "5.3.99"
+        }
     }
 }

@@ -489,7 +489,6 @@ class InlineExporter implements Exporter
 
     const ARRAY_ID_KEY = "\0__depict__\0";
 
-    private static $instance;
     private $depth;
     private $breadth;
     private $useShortNames;
