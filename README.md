@@ -35,14 +35,26 @@ $exporter = InlineExporter::create();
 echo $exporter->export(['a', 'b', 'c', 1, 2, 3]); // outputs '#0["a", "b", "c", 1, 2, 3]'
 ```
 
+## What is *Depict*?
+
+*Depict* is a `var_dump()`/`var_export()`/`print_r()` replacement that focuses
+on performance, succinctness, and recursion safety. In contrast to many of the
+available libraries providing similar functionality, *Depict* is designed
+specifically for command line output (not HTML).
+
+*Depict* is based on the [exporter used by Phony], and is essentially the same
+code, with the Phony-specific parts removed.
+
+[exporter used by phony]: http://eloquent-software.com/phony/latest/#the-exporter
+
 ## Exporters
 
 *Depict* currently implements only one exporter, the [`InlineExporter`]. More
 exporters may be implemented in future. Exporters implement a very simple
 [`Exporter`] interface.
 
-[`Exporter`]: src/Exporter.php
-[`InlineExporter`]: #inlineexporter
+[`exporter`]: src/Exporter.php
+[`inlineexporter`]: #inlineexporter
 
 ### `InlineExporter`
 
