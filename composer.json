@@ -18,7 +18,6 @@
         "php": ">=5.3"
     },
     "require-dev": {
-        "athletic/athletic": "^0.1",
         "errors/exceptions": "^0.1",
         "friendsofphp/php-cs-fixer": "1.11.4",
         "phpdocumentor/reflection-docblock": "^2",

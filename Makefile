@@ -9,9 +9,6 @@ coverage: install
 open-coverage:
 	open coverage/index.html
 
-benchmarks:
-	vendor/bin/athletic -p test/benchmarks
-
 lint: test/bin/php-cs-fixer
 	test/bin/php-cs-fixer fix --using-cache no
 
