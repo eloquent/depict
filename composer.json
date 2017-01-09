@@ -19,10 +19,11 @@
     },
     "require-dev": {
         "athletic/athletic": "^0.1",
-        "errors/exceptions": "dev-master",
+        "errors/exceptions": "^0.1",
         "friendsofphp/php-cs-fixer": "1.11.4",
         "phpdocumentor/reflection-docblock": "^2",
-        "phpunit/phpunit": "^4"
+        "phpunit/phpunit": "^4",
+        "symfony/var-dumper": "^3.2"
     },
     "autoload": {
         "psr-4": {
@@ -30,6 +31,9 @@
         }
     },
     "autoload-dev": {
+        "psr-4": {
+            "Eloquent\\Depict\\": "test/benchmarks"
+        },
         "classmap": [
             "test/src"
         ]
