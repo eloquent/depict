@@ -40,31 +40,19 @@ class InlineExporter implements Exporter
      */
     public static function create(array $options = array())
     {
-        if (isset($options['depth'])) {
-            $depth = $options['depth'];
-        } else {
-            $depth = -1;
-        }
+        $options += array(
+            'depth' => -1,
+            'breadth' => -1,
+            'useShortNames' => true,
+            'useShortPaths' => false,
+        );
 
-        if (isset($options['breadth'])) {
-            $breadth = $options['breadth'];
-        } else {
-            $breadth = -1;
-        }
-
-        if (isset($options['useShortNames'])) {
-            $useShortNames = $options['useShortNames'];
-        } else {
-            $useShortNames = true;
-        }
-
-        if (isset($options['useShortPaths'])) {
-            $useShortPaths = $options['useShortPaths'];
-        } else {
-            $useShortPaths = false;
-        }
-
-        return new self($depth, $breadth, $useShortNames, $useShortPaths);
+        return new self(
+            $options['depth'],
+            $options['breadth'],
+            $options['useShortNames'],
+            $options['useShortPaths']
+        );
     }
 
     /**
